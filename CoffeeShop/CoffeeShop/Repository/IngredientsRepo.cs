@@ -21,6 +21,16 @@ namespace CoffeeShop.Repository
                 this._fileOperations.WriteToFile(ingredients);
             }
         }
+
+        public List<Ingredient> GetAllIngredients()
+        {
+            return this._fileOperations.ReadFromFile();
+        }
+
+        public void UpdateAllIngredients(List<Ingredient> ingredients)
+        {
+            this._fileOperations.WriteToFile(ingredients);
+        }
     }
 }
  
