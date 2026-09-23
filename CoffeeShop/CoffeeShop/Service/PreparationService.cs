@@ -2,7 +2,6 @@
 using CoffeeShop.Enums;
 using System.Collections.Concurrent;
 
-
 namespace CoffeeShop.Service
 {
     internal class PreparationService
@@ -95,7 +94,5 @@ namespace CoffeeShop.Service
             }
             order.Status = OrderStatus.Cancelled;
         }
-
-
     }
 }

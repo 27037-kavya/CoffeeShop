@@ -1,4 +1,7 @@
-﻿using CoffeeShop.Models;
+﻿using CoffeeShop.Enums;
+using CoffeeShop.Models;
+using CoffeeShop.View;
+using System.Linq.Expressions;
 
 namespace CoffeeShop
 {
@@ -6,7 +9,8 @@ namespace CoffeeShop
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            CoffeeShopConsole view = new CoffeeShopConsole();
+            view.DisplayMenu<MainMenu>();
         }
     }
 }

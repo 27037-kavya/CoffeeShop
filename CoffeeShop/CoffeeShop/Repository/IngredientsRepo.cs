@@ -31,6 +31,11 @@ namespace CoffeeShop.Repository
         {
             this._fileOperations.WriteToFile(ingredients);
         }
+
+        public void AddIngredient(Ingredient ingredient)
+        {
+            this._fileOperations.AppendToFile(ingredient);
+        }
     }
 }
  
