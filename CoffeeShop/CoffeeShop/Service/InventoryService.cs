@@ -13,6 +13,15 @@ namespace CoffeeShop.Service
             _ingredientsLock = new object();
         }
 
+        // Refill inventory every 30 minutes.
+        public async void RunRefill()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromMinutes(30));
+                Refill();
+            }
+        }
 
         public void Refill()
         {

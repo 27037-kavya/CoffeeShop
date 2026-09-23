@@ -1,4 +1,6 @@
-﻿namespace CoffeeShop
+﻿using CoffeeShop.Models;
+
+namespace CoffeeShop
 {
     internal class Program
     {
