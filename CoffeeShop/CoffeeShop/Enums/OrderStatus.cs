@@ -7,5 +7,6 @@
         Processing,
         Cancelled,
         WaitingForMachine,
+        WaitingForIngredients,
     }
 }

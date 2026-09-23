@@ -23,7 +23,7 @@ namespace CoffeeShop.Repository
             Order? order = orders.FirstOrDefault(order => order.Id == orderId);
             if(order is not null)
             {
-                order.status = orderStatus;
+                order.Status = orderStatus;
                 _fileOperations.WriteToFile(orders);
             }
         }
