@@ -5,11 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace CoffeeShop.View
 {
-    internal static class CoffeeShopConsole
+    internal class CoffeeShopConsole
     {
+
         public static void DisplayMessage(string message)
         {
             Console.WriteLine(message);
+
         }
 
         public static void DisplayMenu<T>()
@@ -77,21 +79,19 @@ namespace CoffeeShop.View
             }
         }
 
-        public static void DisplayNotification()
-        {
-            while (true)
-            {
-
-            }
-            
-        }
-
         public static void Refresh()
         {
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
             Console.Clear();
             Console.Write("\x1b[3j");
+        }
+
+        public static void DisplayNotification(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine(message);
+            Console.ResetColor();
         }
     }
 }

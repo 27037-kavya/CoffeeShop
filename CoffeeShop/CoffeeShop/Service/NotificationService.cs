@@ -5,21 +5,15 @@ namespace CoffeeShop.Service
 {
     internal class NotificationService
     {
-        private ConcurrentQueue<string> _notification;
+        public event Action<string>? ShowNotification;
 
         public NotificationService()
         {
-            this._notification = new ConcurrentQueue<string>();
         }
 
-        public void AddNotification(string notification)
+        public void Notify(string message)
         {
-            this._notification.Enqueue(notification);
-        }
-
-        public bool TryGet(out string? notification)
-        {
-            return this._notification.TryDequeue(out notification);
+            ShowNotification?.Invoke(message);
         }
     }
 }

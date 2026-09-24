@@ -1,11 +1,8 @@
 ﻿using CoffeeShop.Controller;
-using CoffeeShop.Enums;
 using CoffeeShop.Models;
 using CoffeeShop.Repository;
 using CoffeeShop.Service;
-using CoffeeShop.View;
-using System.Collections.Concurrent;
-using System.Linq.Expressions;
+
 
 namespace CoffeeShop
 {
@@ -19,7 +16,6 @@ namespace CoffeeShop
             OrdersRepo orderRepo = new OrdersRepo(orderFileOperation);
             OrdersHistoryRepo ordersHistoryRepo = new OrdersHistoryRepo(orderHistoryFileOperation);
             IngredientsRepo ingredientsRepo = new IngredientsRepo(ingredientsFileOperation); 
-            InventoryService inventoryService = new InventoryService(ingredientsRepo);
             OrderService orderService = new OrderService(orderRepo, ordersHistoryRepo);
             List<VendingMachine> vendingMachines = new()
             {
@@ -27,8 +23,10 @@ namespace CoffeeShop
                 new VendingMachine(Guid.NewGuid(), "vm2", false, null),
                 new VendingMachine(Guid.NewGuid(), "vm3", false, null),
             };
-            PreparationService preparationService = new PreparationService(inventoryService, orderService, vendingMachines);
-            CoffeeShopController controller = new CoffeeShopController(inventoryService, orderService, preparationService);
+            NotificationService notificationService = new NotificationService();
+            InventoryService inventoryService = new InventoryService(ingredientsRepo, notificationService);
+            PreparationService preparationService = new PreparationService(inventoryService, orderService, vendingMachines, notificationService);
+            CoffeeShopController controller = new CoffeeShopController(inventoryService, orderService, preparationService, notificationService);
             controller.RunCoffeeShopApplication();
         }
     }

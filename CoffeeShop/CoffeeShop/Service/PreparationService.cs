@@ -9,12 +9,14 @@ namespace CoffeeShop.Service
         private readonly InventoryService _inventoryService;
         private readonly OrderService _orderService;
         private readonly List<VendingMachine> _vendingMachines;
+        private readonly NotificationService _notificationService;
 
-        public PreparationService(InventoryService inventoryService, OrderService orderService, List<VendingMachine> vendingMachines)
+        public PreparationService(InventoryService inventoryService, OrderService orderService, List<VendingMachine> vendingMachines, NotificationService notificationService)
         {
             this._inventoryService = inventoryService;
             this._orderService = orderService;
             this._vendingMachines = vendingMachines;
+            this._notificationService = notificationService;
         }
 
         public async Task RunScheduler()
@@ -23,14 +25,16 @@ namespace CoffeeShop.Service
             {
                 foreach (var vendingMachine in this._vendingMachines)
                 {
-                    if (!vendingMachine.IsBusy)
+                    lock (vendingMachine)
                     {
-                        vendingMachine.IsBusy = true;
-                        _ = AllocateMachineAsync(vendingMachine );
+                        if (!vendingMachine.IsBusy)
+                        {
+
+                            vendingMachine.IsBusy = true;
+                        }
+                        _ = AllocateMachineAsync(vendingMachine);
                     }
                 }
-
-
                 await Task.Delay(1000);
             }
         }
@@ -53,7 +57,10 @@ namespace CoffeeShop.Service
             }
             finally
             {
-                vendingMachine.IsBusy = false;
+                lock (vendingMachine)
+                {
+                    vendingMachine.IsBusy = false;
+                }
                 vendingMachine.OrderId = null;
             }
         }
@@ -78,6 +85,7 @@ namespace CoffeeShop.Service
                 this._orderService.orderCancellationTokenMapping.TryRemove(order.Id, out _);
                 this._orderService.AddHistory(order);
                 this._orderService.ActiveOrders.Remove(order);
+                this._notificationService.Notify("Prepare panniyaachuuuuu");
             }
             catch (OperationCanceledException)
             {

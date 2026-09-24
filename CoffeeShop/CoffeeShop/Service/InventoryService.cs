@@ -8,8 +8,9 @@ namespace CoffeeShop.Service
         private readonly IngredientsRepo _ingredientsRepo;
         private readonly object _ingredientsLock;
         private readonly List<MenuItem> _menuItems;
+        private readonly NotificationService _notificationService;
 
-        public InventoryService(IngredientsRepo ingredientsRepo)
+        public InventoryService(IngredientsRepo ingredientsRepo, NotificationService notificationService)
         {
             _ingredientsRepo = ingredientsRepo;
             _ingredientsLock = new object();
@@ -74,6 +75,7 @@ namespace CoffeeShop.Service
             },
             10)
             };
+            this._notificationService = notificationService;
         }
 
 
@@ -82,8 +84,9 @@ namespace CoffeeShop.Service
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromMinutes(30));
+                await Task.Delay(TimeSpan.FromMinutes(1));
                 Refill();
+                Console.WriteLine("Refill done");
             }
         }
 
@@ -102,6 +105,7 @@ namespace CoffeeShop.Service
                 }
                 this._ingredientsRepo.UpdateAllIngredients(ingredients);
             }
+            this._notificationService.Notify("Refill done...");
         }
 
         public bool ReduceIngredients(Dictionary<Guid, int> ingredientsWithQuantity)

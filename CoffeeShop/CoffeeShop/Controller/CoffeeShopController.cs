@@ -11,8 +11,9 @@ namespace CoffeeShop.Controller
         private readonly OrderService _orderService;
         private readonly PreparationService _preparationService;
         private readonly Dictionary<MainMenu, Action> _menuActions;
+        private readonly NotificationService _notifier;
 
-        public CoffeeShopController(InventoryService inventoryService, OrderService orderService, PreparationService preparationService)
+        public CoffeeShopController(InventoryService inventoryService, OrderService orderService, PreparationService preparationService, NotificationService notificationService)
         {
             this._inventoryService = inventoryService;
             this._orderService = orderService;
@@ -23,12 +24,13 @@ namespace CoffeeShop.Controller
                 [MainMenu.CancelOrder] = this.CancelOrder,
                 [MainMenu.Exit] = this.Exit,
             };
-
+            _notifier = notificationService;
+            _notifier.ShowNotification += CoffeeShopConsole.DisplayNotification;
         }
 
         public void RunCoffeeShopApplication()
         {
-            this._inventoryService.AddIngredients();
+            InitializeData();
             _ = _inventoryService.RunRefillAsync();
             _ = _preparationService.RunScheduler();
             MainMenu option;
@@ -36,7 +38,6 @@ namespace CoffeeShop.Controller
             {
                 option = CoffeeShopConsole.GetOption<MainMenu>();
                 this._menuActions[option]();
-                // CoffeeShopConsole.Refresh();
 
             } while (option != MainMenu.Exit);
 
@@ -47,13 +48,15 @@ namespace CoffeeShop.Controller
             List<MenuItem> menu = this._inventoryService.GetMenuItems();
             CoffeeShopConsole.DisplayMenuItems(menu);
             int option = CoffeeShopConsole.GetMenuOption();
-            if (option < 0 || option >= menu.Count)
+            if (option <= 0 || option > menu.Count) 
             {
                 CoffeeShopConsole.DisplayMessage("Invalid index");
                 return;
             }
-            MenuItem selectedItem = menu[option-1]; // need to be validated.
+            MenuItem selectedItem = menu[option-1]; 
             this._orderService.PlaceOrder(selectedItem);
+            CoffeeShopConsole.Refresh();
+
         }
 
         private void CancelOrder()
@@ -65,7 +68,7 @@ namespace CoffeeShop.Controller
                 return;
             }
             int sno = CoffeeShopConsole.GetMenuOption();
-            if(sno < 0 || sno >= this._orderService.ActiveOrders.Count)
+            if(sno <= 0 || sno > this._orderService.ActiveOrders.Count)
             {
                 CoffeeShopConsole.DisplayMessage("Invalid index or the order has been completed.");
                 return;
@@ -73,6 +76,9 @@ namespace CoffeeShop.Controller
             Guid id = MapSnoWithGuid(sno, this._orderService.ActiveOrders);
             Order order = this._orderService.ActiveOrders.First(o => o.Id == id);
             _orderService.CancelOrder(order);
+            CoffeeShopConsole.DisplayMessage("Order cancelled...  :(");
+            CoffeeShopConsole.Refresh();
+
         }
 
         private void Exit()
@@ -84,6 +90,14 @@ namespace CoffeeShop.Controller
             where T : IHasId
         {
             return list[sno - 1].Id;
+        }
+
+        private void InitializeData()
+        {
+            if(!File.Exists("Ingredients.json"))
+            {
+                this._inventoryService.AddIngredients();
+            }
         }
     }
 }
