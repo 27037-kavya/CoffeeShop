@@ -2,7 +2,7 @@
 
 namespace CoffeeShop.Models
 {
-    internal class Order
+    internal class Order : IHasId
     {
         public Order(Guid id, MenuItem menuItem, OrderStatus status)
         {

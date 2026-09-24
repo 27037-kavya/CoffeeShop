@@ -8,28 +8,28 @@ namespace CoffeeShop.Service
     {
         private readonly InventoryService _inventoryService;
         private readonly OrderService _orderService;
-        private readonly ConcurrentDictionary<int, VendingMachine> _vendingMachines;
+        private readonly List<VendingMachine> _vendingMachines;
 
-        public PreparationService(InventoryService inventoryService, OrderService orderService, ConcurrentDictionary<int, VendingMachine> vendingMachines)
+        public PreparationService(InventoryService inventoryService, OrderService orderService, List<VendingMachine> vendingMachines)
         {
             this._inventoryService = inventoryService;
             this._orderService = orderService;
             this._vendingMachines = vendingMachines;
         }
 
-
         public async Task RunScheduler()
         {
             while (true)
             {
-                foreach (var vendingMachines in this._vendingMachines)
+                foreach (var vendingMachine in this._vendingMachines)
                 {
-                    if (!vendingMachines.Value.IsBusy)
+                    if (!vendingMachine.IsBusy)
                     {
-                        vendingMachines.Value.IsBusy = true;
-                        _ = AllocateMachineAsync(vendingMachines.Value);
+                        vendingMachine.IsBusy = true;
+                        _ = AllocateMachineAsync(vendingMachine );
                     }
                 }
+
 
                 await Task.Delay(1000);
             }
@@ -42,14 +42,12 @@ namespace CoffeeShop.Service
             {
                 if (_orderService.TryGetOrder(out orderToBeProcessed))
                 {
-
                     if (orderToBeProcessed is null)
                     {
                         return;
                     }
-                    CancellationTokenSource cts = new CancellationTokenSource();
                     vendingMachine.OrderId = orderToBeProcessed.Id;
-                    await PrepareDishAsync(orderToBeProcessed, cts.Token);
+                    await PrepareDishAsync(orderToBeProcessed, _orderService.orderCancellationTokenMapping[orderToBeProcessed.Id].Token);
 
                 }
             }
@@ -77,7 +75,9 @@ namespace CoffeeShop.Service
                 order.Status = OrderStatus.Processing;
                 await Task.Delay(TimeSpan.FromSeconds(order.MenuItem.Duration), cancellationToken);
                 order.Status = OrderStatus.Completed;
+                this._orderService.orderCancellationTokenMapping.TryRemove(order.Id, out _);
                 this._orderService.AddHistory(order);
+                this._orderService.ActiveOrders.Remove(order);
             }
             catch (OperationCanceledException)
             {

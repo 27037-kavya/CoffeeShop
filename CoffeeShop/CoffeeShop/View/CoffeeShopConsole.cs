@@ -26,8 +26,8 @@ namespace CoffeeShop.View
 
         }
 
-        public static  T GetOption<T>()
-            where T: struct, Enum
+        public static T GetOption<T>()
+            where T : struct, Enum
         {
             DisplayMenu<T>();
             T? validatedOption;
@@ -38,6 +38,7 @@ namespace CoffeeShop.View
                 if (!InputValidator.IsValiOption<T>(userInput, out validatedOption))
                 {
                     Console.WriteLine("Invalid option.");
+                    continue;
                 }
                 return validatedOption ?? default;
             } while (true);
@@ -45,17 +46,17 @@ namespace CoffeeShop.View
 
         public static void DisplayMenuItems(List<MenuItem> menu)
         {
-           for(int i=0;i<menu.Count;i++)
+            for (int i = 0; i < menu.Count; i++)
             {
-                Console.WriteLine($"{i+1}. {menu[i]}");
+                Console.WriteLine($"{i + 1}. {menu[i].Name}");
             }
         }
 
         public static int GetMenuOption()
         {
-            string userOption = Console.ReadLine()?.Trim() ?? string.Empty;
             while (true)
             {
+                string userOption = Console.ReadLine()?.Trim() ?? string.Empty;
                 if (userOption == string.Empty)
                 {
                     Console.WriteLine("Cannot be empty");
@@ -66,6 +67,31 @@ namespace CoffeeShop.View
                 }
                 Console.WriteLine("Integer expected.");
             }
+        }
+
+        public static void DisplayOrders(List<Order> orders)
+        {
+            for (int i = 0; i < orders.Count; i++)
+            {
+                Console.WriteLine(string.Format("{0, -3}{1,-40}{2,-10}", i + 1, orders[i].Id, orders[i].MenuItem.Name));
+            }
+        }
+
+        public static void DisplayNotification()
+        {
+            while (true)
+            {
+
+            }
+            
+        }
+
+        public static void Refresh()
+        {
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            Console.Clear();
+            Console.Write("\x1b[3j");
         }
     }
 }

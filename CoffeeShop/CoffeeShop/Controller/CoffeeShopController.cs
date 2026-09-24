@@ -2,7 +2,7 @@
 using CoffeeShop.Models;
 using CoffeeShop.Service;
 using CoffeeShop.View;
-
+ 
 namespace CoffeeShop.Controller
 {
     internal class CoffeeShopController
@@ -26,7 +26,7 @@ namespace CoffeeShop.Controller
 
         }
 
-        public void RunCoffeeChopApplication()
+        public void RunCoffeeShopApplication()
         {
             this._inventoryService.AddIngredients();
             _ = _inventoryService.RunRefillAsync();
@@ -36,8 +36,9 @@ namespace CoffeeShop.Controller
             {
                 option = CoffeeShopConsole.GetOption<MainMenu>();
                 this._menuActions[option]();
-            } while (option != MainMenu.Exit);
+                // CoffeeShopConsole.Refresh();
 
+            } while (option != MainMenu.Exit);
 
         }
 
@@ -46,19 +47,43 @@ namespace CoffeeShop.Controller
             List<MenuItem> menu = this._inventoryService.GetMenuItems();
             CoffeeShopConsole.DisplayMenuItems(menu);
             int option = CoffeeShopConsole.GetMenuOption();
-            MenuItem selectedItem = menu[option]; // need to be validated.
-            _orderService.PlaceOrder(selectedItem);
+            if (option < 0 || option >= menu.Count)
+            {
+                CoffeeShopConsole.DisplayMessage("Invalid index");
+                return;
+            }
+            MenuItem selectedItem = menu[option-1]; // need to be validated.
+            this._orderService.PlaceOrder(selectedItem);
         }
 
         private void CancelOrder()
         {
-            List
-            _orderService.CancelOrder();
+            CoffeeShopConsole.DisplayOrders(this._orderService.ActiveOrders);
+            if(this._orderService.ActiveOrders.Count == 0)
+            {
+                CoffeeShopConsole.DisplayMessage("No orders can be cancelled");
+                return;
+            }
+            int sno = CoffeeShopConsole.GetMenuOption();
+            if(sno < 0 || sno >= this._orderService.ActiveOrders.Count)
+            {
+                CoffeeShopConsole.DisplayMessage("Invalid index or the order has been completed.");
+                return;
+            }
+            Guid id = MapSnoWithGuid(sno, this._orderService.ActiveOrders);
+            Order order = this._orderService.ActiveOrders.First(o => o.Id == id);
+            _orderService.CancelOrder(order);
         }
 
         private void Exit()
         {
             CoffeeShopConsole.DisplayMessage("Exiting...\nThank you:)");
+        }
+
+        private Guid MapSnoWithGuid<T>(int sno, List<T> list)
+            where T : IHasId
+        {
+            return list[sno - 1].Id;
         }
     }
 }

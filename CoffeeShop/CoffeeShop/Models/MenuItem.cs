@@ -1,6 +1,6 @@
 ﻿namespace CoffeeShop.Models
 {
-    internal class MenuItem // tea
+    internal class MenuItem : IHasId // tea
     {
         public MenuItem(Guid id, string name, Dictionary<Guid, int> ingredients, int duration)
         {

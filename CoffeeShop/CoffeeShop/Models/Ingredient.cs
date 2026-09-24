@@ -1,6 +1,6 @@
 ﻿namespace CoffeeShop.Models
 {
-    internal class Ingredient
+    internal class Ingredient : IHasId
     {
         public Ingredient(Guid id, string name, int quantity, int maxQuantity)
         {

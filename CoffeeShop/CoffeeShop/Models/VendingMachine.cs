@@ -1,6 +1,6 @@
 ﻿namespace CoffeeShop.Models
 {
-    internal class VendingMachine
+    internal class VendingMachine : IHasId
     {
         public VendingMachine(Guid id, string name, bool isBusy, Guid? orderId)
         {
