@@ -1,5 +1,6 @@
 ﻿using CoffeeShop.Models;
 using CoffeeShop.Repository;
+using System.Timers;
 
 namespace CoffeeShop.Service
 {
@@ -9,11 +10,15 @@ namespace CoffeeShop.Service
         private readonly object _ingredientsLock;
         private readonly List<MenuItem> _menuItems;
         private readonly NotificationService _notificationService;
+        private readonly System.Timers.Timer timer;
 
         public InventoryService(IngredientsRepo ingredientsRepo, NotificationService notificationService)
         {
             _ingredientsRepo = ingredientsRepo;
             _ingredientsLock = new object();
+            timer = new System.Timers.Timer(TimeSpan.FromMinutes(2));
+            timer.AutoReset = true;
+            timer.Elapsed += Refill;
 
             Guid coffeePowderId = Guid.Parse("11111111-1111-1111-1111-111111111111");
             Guid milkId = Guid.Parse("22222222-2222-2222-2222-222222222222");
@@ -27,7 +32,7 @@ namespace CoffeeShop.Service
             "Espresso",
             new Dictionary<Guid, int>
             {
-                { coffeePowderId, 3 }
+                { coffeePowderId, 30 }
             },
             3),
 
@@ -36,8 +41,8 @@ namespace CoffeeShop.Service
             "Black Coffee",
             new Dictionary<Guid, int>
             {
-                { coffeePowderId, 2 },
-                { sugarId, 1 }
+                { coffeePowderId, 20 },
+                { sugarId, 10 }
             },
             4),
 
@@ -46,9 +51,9 @@ namespace CoffeeShop.Service
             "Coffee",
             new Dictionary<Guid, int>
             {
-                { coffeePowderId, 2 },
-                { milkId, 2 },
-                { sugarId, 1 }
+                { coffeePowderId, 20 },
+                { milkId, 20 },
+                { sugarId, 10 }
             },
             5),
 
@@ -57,9 +62,9 @@ namespace CoffeeShop.Service
             "Cappuccino",
             new Dictionary<Guid, int>
             {
-                { coffeePowderId, 2 },
-                { milkId, 3 },
-                { sugarId, 1 }
+                { coffeePowderId, 20 },
+                { milkId, 30 },
+                { sugarId, 10 }
             },
             8),
 
@@ -68,10 +73,10 @@ namespace CoffeeShop.Service
             "Mocha",
             new Dictionary<Guid, int>
             {
-                { coffeePowderId, 2 },
-                { milkId, 2 },
-                { sugarId, 1 },
-                { chocolateSyrupId, 1 }
+                { coffeePowderId, 20 },
+                { milkId, 20 },
+                { sugarId, 10 },
+                { chocolateSyrupId, 10 }
             },
             10)
             };
@@ -80,14 +85,14 @@ namespace CoffeeShop.Service
 
 
         // Refill inventory every 30 minutes.
-        public async Task RunRefillAsync()
+        public void RunRefill()
         {
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromMinutes(1));
-                Refill();
-                Console.WriteLine("Refill done");
-            }
+            timer.Start();
+        }
+
+        private void Refill(object? sender, ElapsedEventArgs e)
+        {
+            Refill();
         }
 
         public void Refill()
@@ -200,7 +205,5 @@ namespace CoffeeShop.Service
         {
             return _menuItems;
         }
-
-
     }
 }

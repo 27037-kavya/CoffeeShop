@@ -55,7 +55,7 @@ namespace CoffeeShop.Service
             // cancellation mapping dictionary element should be removed 
             // after completion of the order
             // or cancellation of the order.
-            if(order.Status != OrderStatus.Completed)
+            if(order.Status == OrderStatus.Completed || order.Status == OrderStatus.Cancelled)
             {
                 return false;
             }

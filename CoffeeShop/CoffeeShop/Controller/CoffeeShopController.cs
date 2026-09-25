@@ -12,8 +12,9 @@ namespace CoffeeShop.Controller
         private readonly PreparationService _preparationService;
         private readonly Dictionary<MainMenu, Action> _menuActions;
         private readonly NotificationService _notifier;
+        private readonly CoffeeShopConsole _console;
 
-        public CoffeeShopController(InventoryService inventoryService, OrderService orderService, PreparationService preparationService, NotificationService notificationService)
+        public CoffeeShopController(InventoryService inventoryService, OrderService orderService, PreparationService preparationService, NotificationService notificationService, CoffeeShopConsole console)
         {
             this._inventoryService = inventoryService;
             this._orderService = orderService;
@@ -25,18 +26,21 @@ namespace CoffeeShop.Controller
                 [MainMenu.Exit] = this.Exit,
             };
             _notifier = notificationService;
-            _notifier.ShowNotification += CoffeeShopConsole.DisplayNotification;
+            _console = console;
+            _notifier.ShowNotification += _console.ShowNotification;
+
         }
 
         public void RunCoffeeShopApplication()
         {
+            _console.Initialize();
             InitializeData();
-            _ = _inventoryService.RunRefillAsync();
+            _inventoryService.RunRefill();
             _ = _preparationService.RunScheduler();
             MainMenu option;
             do
             {
-                option = CoffeeShopConsole.GetOption<MainMenu>();
+                option = _console.GetOption<MainMenu>();
                 this._menuActions[option]();
 
             } while (option != MainMenu.Exit);
@@ -46,44 +50,44 @@ namespace CoffeeShop.Controller
         private void MakeOrder()
         {
             List<MenuItem> menu = this._inventoryService.GetMenuItems();
-            CoffeeShopConsole.DisplayMenuItems(menu);
-            int option = CoffeeShopConsole.GetMenuOption();
+            _console.DisplayMenuItems(menu);
+            int option = _console.GetMenuOption();
             if (option <= 0 || option > menu.Count) 
             {
-                CoffeeShopConsole.DisplayMessage("Invalid index");
+                _console.DisplayMessage("Invalid index");
                 return;
             }
             MenuItem selectedItem = menu[option-1]; 
             this._orderService.PlaceOrder(selectedItem);
-            CoffeeShopConsole.Refresh();
+            _console.Refresh();
 
         }
 
         private void CancelOrder()
         {
-            CoffeeShopConsole.DisplayOrders(this._orderService.ActiveOrders);
+            _console.DisplayOrders(this._orderService.ActiveOrders);
             if(this._orderService.ActiveOrders.Count == 0)
             {
-                CoffeeShopConsole.DisplayMessage("No orders can be cancelled");
+                _console.DisplayMessage("No orders can be cancelled");
                 return;
             }
-            int sno = CoffeeShopConsole.GetMenuOption();
+            int sno = _console.GetMenuOption();
             if(sno <= 0 || sno > this._orderService.ActiveOrders.Count)
             {
-                CoffeeShopConsole.DisplayMessage("Invalid index or the order has been completed.");
+                _console.DisplayMessage("Invalid index or the order has been completed.");
                 return;
             }
             Guid id = MapSnoWithGuid(sno, this._orderService.ActiveOrders);
             Order order = this._orderService.ActiveOrders.First(o => o.Id == id);
             _orderService.CancelOrder(order);
-            CoffeeShopConsole.DisplayMessage("Order cancelled...  :(");
-            CoffeeShopConsole.Refresh();
+            _console.DisplayMessage("Order cancelled...  :(");
+            _console.Refresh();
 
         }
 
         private void Exit()
         {
-            CoffeeShopConsole.DisplayMessage("Exiting...\nThank you:)");
+            _console.DisplayMessage("Exiting...\nThank you:)");
         }
 
         private Guid MapSnoWithGuid<T>(int sno, List<T> list)

@@ -2,6 +2,8 @@
 using CoffeeShop.Models;
 using CoffeeShop.Repository;
 using CoffeeShop.Service;
+using CoffeeShop.View;
+
 
 
 namespace CoffeeShop
@@ -26,7 +28,8 @@ namespace CoffeeShop
             NotificationService notificationService = new NotificationService();
             InventoryService inventoryService = new InventoryService(ingredientsRepo, notificationService);
             PreparationService preparationService = new PreparationService(inventoryService, orderService, vendingMachines, notificationService);
-            CoffeeShopController controller = new CoffeeShopController(inventoryService, orderService, preparationService, notificationService);
+            CoffeeShopConsole console = new CoffeeShopConsole();
+            CoffeeShopController controller = new CoffeeShopController(inventoryService, orderService, preparationService, notificationService, console);
             controller.RunCoffeeShopApplication();
         }
     }

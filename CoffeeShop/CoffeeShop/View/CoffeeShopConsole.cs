@@ -7,14 +7,14 @@ namespace CoffeeShop.View
 {
     internal class CoffeeShopConsole
     {
-
-        public static void DisplayMessage(string message)
+        private readonly static List<string> _notification = new();
+        public void DisplayMessage(string message)
         {
             Console.WriteLine(message);
 
         }
 
-        public static void DisplayMenu<T>()
+        public void DisplayMenu<T>()
             where T : Enum
         {
             StringBuilder menuBuilder = new StringBuilder();
@@ -28,7 +28,7 @@ namespace CoffeeShop.View
 
         }
 
-        public static T GetOption<T>()
+        public T GetOption<T>()
             where T : struct, Enum
         {
             DisplayMenu<T>();
@@ -46,7 +46,7 @@ namespace CoffeeShop.View
             } while (true);
         }
 
-        public static void DisplayMenuItems(List<MenuItem> menu)
+        public void DisplayMenuItems(List<MenuItem> menu)
         {
             for (int i = 0; i < menu.Count; i++)
             {
@@ -54,7 +54,7 @@ namespace CoffeeShop.View
             }
         }
 
-        public static int GetMenuOption()
+        public int GetMenuOption()
         {
             while (true)
             {
@@ -71,7 +71,7 @@ namespace CoffeeShop.View
             }
         }
 
-        public static void DisplayOrders(List<Order> orders)
+        public void DisplayOrders(List<Order> orders)
         {
             for (int i = 0; i < orders.Count; i++)
             {
@@ -79,7 +79,7 @@ namespace CoffeeShop.View
             }
         }
 
-        public static void Refresh()
+        public void Refresh()
         {
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
@@ -87,11 +87,42 @@ namespace CoffeeShop.View
             Console.Write("\x1b[3j");
         }
 
-        public static void DisplayNotification(string message)
+        public void DisplayNotification(string message)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine(message);
             Console.ResetColor();
+        }
+
+        public void Initialize()
+        {
+            Console.Clear();
+            Console.WriteLine("============================= Notification =============================");
+            Console.SetCursorPosition(0,7);
+            Console.WriteLine("========================================================================");
+        }
+
+        public void ShowNotification(string message)
+        {
+            lock (_notification)
+            {
+                _notification.Add(message);
+                if(_notification.Count > 5)
+                {
+                    _notification.RemoveAt(0);
+                }
+                DrawNotification();
+            }
+        }
+
+        private void DrawNotification()
+        {
+            int notificationHeight = 6;
+            for(int i = 0; i < notificationHeight - 1; i++)
+            {
+                Console.SetCursorPosition(0, i + 1);
+                Console.WriteLine(_notification[i]);
+            }
         }
     }
 }

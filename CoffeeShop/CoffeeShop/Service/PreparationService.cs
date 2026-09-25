@@ -29,10 +29,10 @@ namespace CoffeeShop.Service
                     {
                         if (!vendingMachine.IsBusy)
                         {
-
                             vendingMachine.IsBusy = true;
+                            _ = AllocateMachineAsync(vendingMachine);
+
                         }
-                        _ = AllocateMachineAsync(vendingMachine);
                     }
                 }
                 await Task.Delay(1000);
@@ -73,10 +73,13 @@ namespace CoffeeShop.Service
                 cancellationToken.ThrowIfCancellationRequested();
                 if (!this._inventoryService.ReduceIngredients(order.MenuItem.Ingredients))
                 {
+                    Console.WriteLine("stock illa pa thambi");
                     _orderService.AddOrder(order);
                     order.Status = OrderStatus.WaitingForIngredients;
                     return;
                 }
+                Console.WriteLine("reducesssssssssssssssssssssssssssssss");
+
                 isIngredientsAllocated = true;
                 cancellationToken.ThrowIfCancellationRequested();
                 order.Status = OrderStatus.Processing;
