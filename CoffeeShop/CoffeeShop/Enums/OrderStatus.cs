@@ -2,7 +2,7 @@
 {
     internal enum OrderStatus
     {
-        Pending,
+        Pending = 1,
         Completed,
         Processing,
         Cancelled,

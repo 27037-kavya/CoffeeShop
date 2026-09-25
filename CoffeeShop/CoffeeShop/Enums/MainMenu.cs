@@ -2,8 +2,8 @@
 {
     internal enum MainMenu
     {
-        OrderCoffee = 1,
-        CancelCoffee,
+        MakeOrder = 1,
+        CancelOrder,
         Exit,
     }
 }
